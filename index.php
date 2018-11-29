@@ -40,9 +40,9 @@ $number = cal_days_in_month(CAL_GREGORIAN, $month_current, $year_current); // 31
         <?php
         for ($i = 0; $i < $row; $i++) {
             if($tasks[$i][3]){
-            echo '<div id =task_'.$i.' class="task childtask">'.$tasks[$i][0].'<span class="datetime_start">'.$tasks[$i][1].'</span><span class="datetime_end">'.$tasks[$i][2].'</span></div>';
+            echo '<div id =task_'.$i.' class="task childtask"><span class="task_name">'.$tasks[$i][0].'</span><span class="datetime_start">'.$tasks[$i][1].'</span><span class="datetime_end">'.$tasks[$i][2].'</span></div>';
             }else{
-            echo '<div id =task_'.$i.' class="task">'.$tasks[$i][0].'<span class="datetime_start">'.$tasks[$i][1].'</span><span class="datetime_end">'.$tasks[$i][2].'</span></div>';
+            echo '<div id =task_'.$i.' class="task"><span class="task_name">'.$tasks[$i][0].'</span><span class="datetime_start">'.$tasks[$i][1].'</span><span class="datetime_end">'.$tasks[$i][2].'</span></div>';
             }
         }
         ?>
