@@ -1,0 +1,84 @@
+.task_display_area {
+  position: relative;
+  width: 98vw;
+  overflow-x: scroll;
+  margin-left: 196px;
+}
+table {
+  table-layout: fixed;
+  margin: 0;
+  border-collapse: collapse;
+}
+thead, tbody {
+  display: block;
+}
+thead tr {
+  display: flex;
+}
+thead th {
+  display: grid;
+}
+tbody {
+  overflow-x: hidden;
+  overflow-y: scroll;
+  height: 65vh;
+  border: 1px solid #f2f2f2;
+}
+
+th, td {
+  border: 1px solid #f2f2f2;
+}
+.task {
+  display: flex;
+}
+.task td {
+  display: grid;
+}
+.task_name {
+  width: 200px;
+  position: absolute;
+  top: auto;
+  left: 0;
+}
+.childtask {
+  color: #6e6e6e;
+}
+.childtask .task_name {
+  font-size: 0.9rem;
+  text-indent: 0.5rem;
+}
+.datetime_start, .datetime_end {
+  width: 100px;
+  text-align: center;
+}
+.append_child {
+  width: 113px;
+}
+.delete {
+  width: 58px;
+}
+.task_name,
+.datetime_start,
+.datetime_end,
+.append_child,
+.delete {
+}
+.day {
+  width: 26px;
+}
+.day.period {
+  background-color: #04b404;
+  border-left: 1px solid #04b404;
+  border-right: 1px solid #04b404;
+}
+.day.day15 {
+  position: relative;
+}
+.day.day15::after {
+  display: block;
+  position: absolute;
+  top: 30vh;
+  content: 'aiu';
+  color: red;
+  font-size: 5rem;
+}

@@ -1,0 +1,167 @@
+.calendar_wrapper {
+  width: 80vw;
+  height: 70vh;
+  overflow-x: scroll;
+}
+.calendar {
+  position: relative;
+  width: max-content;
+  height: 70vh;
+  background-color: #fafafa;
+  overflow-x: scroll;
+}
+
+.task_display_area {
+  display: flex;
+}
+.task {
+  line-height: 24px;
+}
+.task .datetime_start,
+.task .datetime_end,
+.task i
+{
+  margin-left: 0.5rem;
+}
+
+.childtask {
+  margin-left: 1rem;
+  color: #6e6e6e;
+}
+form#add_task {
+  padding-top: 0.5rem;
+  margin-top: 1rem;
+  border-top: 1px solid gray;
+}
+input[name='task_name'] {
+  width: 80%;
+}
+
+.task_title_area {
+  width: 30vw;
+  max-height: 80vh;
+  margin-top: 24px;
+}
+.tasks {
+  height: 64vh;
+  overflow-y: scroll;
+}
+.month {
+  display: inline-block;
+  position: relative;
+  height: 100%;
+  text-align: center;
+}
+.month_character {
+  position: absolute;
+  bottom: 0;
+  left: 45%;
+  font-size: 5em;
+  color: gray;
+}
+.day_wrapper {
+  height: 64vh;
+}
+.day {
+  position: relative;
+  display: inline-block;
+  width: 30px;
+  height: 100%;
+  border-left: 1px solid #e6e6e6;
+}
+.day_01 {
+  border-left: 2px solid gray;
+}
+.day::after {
+  position: sticky;
+  top: 0;
+  left: 0;
+  display: inline-block;
+  width: 30px;
+  color: #6e6e6e;
+  text-align: center;
+  content: '';
+}
+
+.day_01::after { content: '01'; }
+.day_02::after { content: '02'; }
+.day_03::after { content: '03'; }
+.day_04::after { content: '04'; }
+.day_05::after { content: '05'; }
+.day_06::after { content: '06'; }
+.day_07::after { content: '07'; }
+.day_08::after { content: '08'; }
+.day_09::after { content: '09'; }
+.day_10::after { content: '10'; }
+.day_11::after { content: '11'; }
+.day_12::after { content: '12'; }
+.day_13::after { content: '13'; }
+.day_14::after { content: '14'; }
+.day_15::after { content: '15'; }
+.day_16::after { content: '16'; }
+.day_17::after { content: '17'; }
+.day_18::after { content: '18'; }
+.day_19::after { content: '19'; }
+.day_20::after { content: '20'; }
+.day_21::after { content: '21'; }
+.day_22::after { content: '22'; }
+.day_23::after { content: '23'; }
+.day_24::after { content: '24'; }
+.day_25::after { content: '25'; }
+.day_26::after { content: '26'; }
+.day_27::after { content: '27'; }
+.day_28::after { content: '28'; }
+.day_29::after { content: '29'; }
+.day_30::after { content: '30'; }
+.day_31::after { content: '31'; }
+.today {
+  font-weight: bold;
+}
+
+.period {
+  position: absolute;
+  background-color: green;
+  height: 1.2rem;
+  z-index: 1;
+}
+
+.add_child {
+  position: absolute;
+  top: 30%;
+  left: 40%;
+  width: 400px;
+  height: 160px;
+  background-color: #fff;
+  z-index: 2;
+}
+.mordal_close {
+  position: absolute;
+  right: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #fff;
+  background-color: #e74c3c;
+  text-align: center;
+}
+
+.add_child input[type='text']{
+  display: block;
+  width: 80%;
+  margin-top: 2rem;
+  margin-left: 2rem;
+}
+
+.add_child input[name='start_date_child']{
+  margin-top: 2rem;
+  margin-left: 2rem;
+}
+
+.add_child span {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.add_child input[type='submit']{
+  display: block;
+  margin: 1rem auto;
+}
