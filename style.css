@@ -124,6 +124,18 @@ input[name='task_name'] {
   height: 1.2rem;
   z-index: 1;
 }
+.rightend_period {
+  position: absolute;
+  right: 0;
+  width: 30px;
+  height: 1.2rem;
+  cursor: ew-resize;
+}
+.leftend_period {
+  width: 30px;
+  height: 1.2rem;
+  cursor: ew-resize;
+}
 
 .add_child {
   position: absolute;

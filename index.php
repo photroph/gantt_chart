@@ -61,6 +61,11 @@ $number = cal_days_in_month(CAL_GREGORIAN, $month_current, $year_current); // 31
             </form>
         </div>
         <div class="calendar_wrapper">
+            <form action="./edit_period.php" name="edit_period" method="post">
+                <input type="hidden" id="edit_period_LR" name="edit_period_LR">
+                <input type="hidden" id="edit_period" name="edit_period">
+                <input type="hidden" id="period_to_edit" name="period_to_edit">
+            </form>
         <div id="calendar" class="calendar">
         <?php
         for ($m = 1; $m <= 12; $m++){

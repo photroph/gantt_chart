@@ -1,6 +1,6 @@
 const tasks = document.getElementsByClassName('task');
 const y_task0 = tasks[0].getBoundingClientRect().top;
-var task_num_total = 0;
+let task_num_total = 0;
 
 const task_disp_area = document.getElementById('tasks');
 const calendar = document.getElementById('calendar');
@@ -11,10 +11,11 @@ task_disp_area.addEventListener('scroll', function() {
 calendar.addEventListener('scroll', function() {
     task_disp_area.scrollTop = calendar.scrollTop;
 });
+calendar.addEventListener('mouseup', extendPeriod,false);
 
 // scroll today column into view
 let today = new Date();
-today = today.getFullYear() + '-' + (today.getMonth() + 1) +  '-' +today.getDate();
+today = today.getFullYear() + '-' + (('0' + (today.getMonth() + 1)).slice(-2)) +  '-' +(('0' + today.getDate()).slice(-2));
 const span_today = document.getElementById(today);
 span_today.classList.add('today');
 span_today.scrollIntoView({behavior: "instant", block: "start", inline: "start"});
@@ -37,7 +38,15 @@ for (let i = 0; i < tasks.length; i++){
     period.style.width = width_period + 'px';
     let period_top = y_task - y_task0 + 26;
     period.style.top = period_top + 'px';
-    period.addEventListener('click', taskEdit,false);
+    // period.addEventListener('click', taskEdit,false);
+    let leftend_period = document.createElement('div');
+    leftend_period.classList.add('leftend_period');
+    leftend_period.addEventListener('mousedown', getPeriodWidth,false);
+    let rightend_period = document.createElement('div');
+    rightend_period.classList.add('rightend_period');
+    rightend_period.addEventListener('mousedown', getPeriodWidth,false);
+    period.appendChild(rightend_period);
+    period.appendChild(leftend_period);
     span_start.appendChild(period);
 
     // append delete button
@@ -198,4 +207,107 @@ function taskEdit(event){
 
     const id_to_append = item_id_to_edit.replace('task_','');
     document.getElementById('task_id_to_edit').value = id_to_append;
+}
+
+let period_edit_flg;
+let period_to_edit;
+let period_end_which;
+let period_width_mousedown;
+let day_to_extend;
+function getPeriodWidth(event){
+    period_end_which = event.target.classList.value;
+    period_to_edit = event.target.parentNode;
+    period_width_mousedown = period_to_edit.getBoundingClientRect().width;
+    calendar.addEventListener('mousemove', getExtendedPeriodWidth,false);
+}
+
+function getExtendedPeriodWidth(event){
+    if(period_end_which == 'rightend_period'){
+        let x_period_rightend = period_to_edit.getBoundingClientRect().right;
+        let x_cursor = event.pageX;
+        let diff_x = x_cursor - x_period_rightend;
+        if (diff_x >= 15){
+            period_edit_flg = 'right_ext'
+            day_to_extend = Math.floor((diff_x + 15)/ 30);
+            console.log('last day_to_extend = ' + day_to_extend);
+        }else if(diff_x <= -15){
+            period_edit_flg = 'right_shorten'
+            day_to_extend = Math.floor((diff_x + 30)/ 30);
+            console.log('last day_to_shorten = ' + day_to_extend);
+        }
+    }else if(period_end_which == 'leftend_period'){
+        let x_period_leftend = period_to_edit.getBoundingClientRect().left;
+        let x_cursor = event.pageX;
+        let diff_x = x_cursor - x_period_leftend;
+        if (diff_x >= 15){
+            period_edit_flg = 'left_shorten'
+            day_to_extend = Math.floor((diff_x)/ 30);
+            console.log('first day_to_shorten = ' + day_to_extend);
+        }else if(diff_x <= -15){
+            period_edit_flg = 'left_ext'
+            day_to_extend = Math.floor((diff_x + 15)/ 30);
+            console.log('first day_to_extend = ' + day_to_extend);
+        }
+    }
+    event.preventDefault();
+}
+
+function extendPeriod(event){
+    calendar.removeEventListener('mousemove', getExtendedPeriodWidth,false);
+    period_width_mousedown = 0;
+    if(Math.abs(day_to_extend) >= 1){
+        console.log(Math.abs(day_to_extend));
+        const edit_period = document.getElementById('edit_period');
+        const period_id_to_edit = period_to_edit.id.replace('period_','');
+        edit_period.value = day_to_extend;
+        document.getElementById('period_to_edit').value = period_id_to_edit;
+        document.getElementById('edit_period_LR').value = period_edit_flg;
+        // document.edit_period.submit();
+        $(function(){
+            $edit_period = day_to_extend;
+            console.log($edit_period);
+            $.ajax('edit_period.php',{
+                type: 'post',
+                dataType: 'text',
+                data: {
+                    'edit_period': day_to_extend,
+                    'period_to_edit': period_id_to_edit,
+                    'edit_period_LR': period_edit_flg
+                }
+            }).done(function(response, textStatus, xhr) {
+                console.log("ajax connection succeeded");
+                response_parsed = JSON.parse(response);
+                renewTaskAjax(response_parsed[0], response_parsed[1], response_parsed[2], response_parsed[3]);
+            }).fail(function(xhr, textStatus, errorThrown) {
+                console.log("failed to ajax connection");
+            });
+        });
+    }
+}
+
+function renewTaskAjax(item_to_edit, date_modified, day_to_modify, modify_type){
+    console.log('item_to_edit = '+item_to_edit);
+    console.log('date_modified = '+date_modified);
+    console.log('day = '+day_to_modify);
+    console.log('modify_type = '+modify_type);
+    const task_to_modify = document.getElementById('task_'+item_to_edit);
+    const period_to_modify = document.getElementById('period_'+item_to_edit);
+    if(modify_type.match('left')){
+        task_to_modify.children[1].textContent = date_modified;
+        if(modify_type.match('shorten')){
+            period_to_modify.style.width = (Number(period_to_modify.style.width.slice(0,-2)) - Number(day_to_modify)*31) + 'px';
+            document.getElementById(date_modified).append(period_to_modify);
+        }else if(modify_type.match('ext')){
+            period_to_modify.style.width = (Number(period_to_modify.style.width.slice(0,-2)) - Number(day_to_modify)*31) + 'px';
+            document.getElementById(date_modified).append(period_to_modify);
+        }
+    } else if(modify_type.match('right')){
+        task_to_modify.children[2].textContent = date_modified;
+        if(modify_type.match('shorten')){
+            period_to_modify.style.width = (Number(period_to_modify.style.width.slice(0,-2)) + Number(day_to_modify)*31) + 'px';
+        }else if(modify_type.match('ext')){
+            period_to_modify.style.width = (Number(period_to_modify.style.width.slice(0,-2)) + Number(day_to_modify)*31) + 'px';
+        }
+    }
+
 }
