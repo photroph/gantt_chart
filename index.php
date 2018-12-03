@@ -4,20 +4,31 @@ ini_set('display_errors', 0);
 $row = 0;
 $tasks = [];
 if (($handle = fopen("./tasks.csv", "r")) !== FALSE) {
+    $oldest_start_date = '9999-12-31';
+    $newest_end_date = '1900-01-01';
     while (($data = fgetcsv($handle, 0, ",")) !== FALSE) {
-        $num = count($data); // 2
+        $num = count($data);
         for ($c=0; $c < $num; $c++) {
             $tasks[$row][$c] =  trim($data[$c], '"');
+        }
+        if($tasks[$row][1] < $oldest_start_date){
+            $oldest_start_date = $tasks[$row][1];
+        }
+        if($tasks[$row][2] > $newest_end_date){
+            $newest_end_date = $tasks[$row][2];
         }
         $row++;
     }
     fclose($handle);
 }
 
-$year_current = date('Y');
-$month_current = date('m');
-$day_current = date('d');
-$number = cal_days_in_month(CAL_GREGORIAN, $month_current, $year_current); // 31
+echo 'showing from ';
+echo $oldest_start_date;
+echo ' to ';
+echo $newest_end_date;
+$y = date('Y', strtotime($oldest_start_date));
+$m = date('m', strtotime($oldest_start_date));
+$d = date('d', strtotime($oldest_start_date));
 ?>
 <!DOCTYPE html>
 <html>
@@ -66,20 +77,29 @@ $number = cal_days_in_month(CAL_GREGORIAN, $month_current, $year_current); // 31
                 <input type="hidden" id="edit_period" name="edit_period">
                 <input type="hidden" id="period_to_edit" name="period_to_edit">
             </form>
-        <div id="calendar" class="calendar">
-        <?php
-        for ($m = 1; $m <= 12; $m++){
-            echo '<div class="month month_'.$m.'"><div class="month_character">'.$m.'</div><div class="day_wrapper">';
-            $last_day_of_month = cal_days_in_month(CAL_GREGORIAN, $m, $year_current);
-            $m = str_pad($m, 2, '0', STR_PAD_LEFT);
-            for ($d = 1; $d <= $last_day_of_month; $d++){
-                $d = str_pad($d, 2, '0', STR_PAD_LEFT);
-                echo '<div id="'.$year_current.'-'.$m.'-'.$d.'" class="day day_'.$d.'"></div>';
-            }
-            echo '</div></div>';
-        }
-        ?>
-        </div>
+            <div id="calendar" class="calendar">
+                <div class="year year_<?php echo $y;?>">
+                    <div class="year_character"><?php echo $y;?></div>
+                    <div class="month month_<?php echo $m;?>">
+                        <div class="month_character"><?php echo $m;?></div>
+                        <div class="day_wrapper">
+                        <?php
+                        for ($i = $oldest_start_date; $i <= $newest_end_date; $i = date('Y-m-d', strtotime($i . '+1 day'))) {
+                            $y = date('Y', strtotime($i));
+                            $m = date('m', strtotime($i));
+                            $d = date('d', strtotime($i));
+                            if($d === '01'){
+                                if($m === '01'){
+                                    echo '</div><!--year--><div class="year year_'.$y.'><div class="year_character">'.$y.'<div>';
+                                }
+                                echo '</div></div><!--month--><div class="month month_'.$m.'"><div class="month_character">'.$m.'</div><div class="day_wrapper">';
+                            }
+                            echo '<div id="'.$y.'-'.$m.'-'.$d.'" class="day day_'.$d.'"></div>';
+                        }
+                        ?>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

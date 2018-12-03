@@ -46,6 +46,13 @@ input[name='task_name'] {
   height: 64vh;
   overflow-y: scroll;
 }
+.year_character {
+  position: absolute;
+  bottom: 0;
+  left: 1em;
+  font-size: 5em;
+  color: gray;
+}
 .month {
   display: inline-block;
   position: relative;
