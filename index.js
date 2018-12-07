@@ -49,7 +49,7 @@ for (let i = 0; i < tasks.length; i++){
     period.appendChild(leftend_period);
     span_start.appendChild(period);
 
-    // append delete button
+    // append append button
     if (tasks[i].classList.value == 'task'){
         let add_child_btn = document.createElement('i');
         add_child_btn.setAttribute('title', 'add child task');
@@ -87,19 +87,37 @@ $(function() {
 
 $('.sortable').bind('sortstop', function (event, ui) {
     // ソートが完了したら実行される。
-    console.log(event.target);
     var result = $(".sortable").sortable("toArray");
-    console.log(result);
-    $("#sorted").val(result);
-    document.sorted.submit();
+    $(function(){
+        $.ajax('sort_tasks.php',{
+            type: 'post',
+            dataType: 'text',
+            data: { 'sorted': result }
+        }).done(function(response, textStatus, xhr) {
+            console.log("ajax connection succeeded");
+        }).fail(function(xhr, textStatus, errorThrown) {
+            console.log("failed to ajax connection");
+        });
+    });
 })
 
-function deleteTask(e){
-    id_to_delete = e.target.parentNode.id;
-    document.getElementById('task_id_to_delete').value = id_to_delete;
-    if(window.confirm('Delete ' + id_to_delete)){
-        document.delete_task.submit();
+function deleteTask(event){
+    id_to_delete = event.target.parentNode.id;
+    if(window.confirm('Delete ' + event.target.parentNode.childNodes[0].textContent)){
+        $(function(){
+            $.ajax('delete_task.php',{
+                type: 'post',
+                dataType: 'text',
+                data: { 'task_id_to_delete': id_to_delete }
+            }).done(function(response, textStatus, xhr) {
+                console.log("ajax connection succeeded");
+                document.getElementById(id_to_delete).remove();
+            }).fail(function(xhr, textStatus, errorThrown) {
+                console.log("failed to ajax connection");
+            });
+        });
     }
+    event.preventDefault();
 }
 
 function addChildTask(e){
@@ -177,12 +195,12 @@ function taskEdit(event){
     const text_to_rename = document.createElement('input');
     text_to_rename.setAttribute('type', 'text');
     text_to_rename.setAttribute('name', 'text_to_rename');
-    text_to_rename.setAttribute('value', item_to_edit.children[0].textContent);
+    text_to_rename.setAttribute('value', item_to_edit.childNodes[0].textContent);
     form_mordal.appendChild(text_to_rename);
     const start_date_child = document.createElement('input');
     start_date_child.setAttribute('type', 'date');
     start_date_child.setAttribute('name', 'start_date_child');
-    start_date_child.setAttribute('value', item_to_edit.children[1].textContent);
+    start_date_child.setAttribute('value', item_to_edit.childNodes[1].textContent);
     form_mordal.appendChild(start_date_child);
     const span_date = document.createElement('span');
     span_date.textContent = '〜';
@@ -190,7 +208,7 @@ function taskEdit(event){
     const end_date_child = document.createElement('input');
     end_date_child.setAttribute('type', 'date');
     end_date_child.setAttribute('name', 'end_date_child');
-    end_date_child.setAttribute('value', item_to_edit.children[2].textContent);
+    end_date_child.setAttribute('value', item_to_edit.childNodes[2].textContent);
     form_mordal.appendChild(end_date_child);
     const add_child_submit = document.createElement('input');
     add_child_submit.setAttribute('type', 'submit');

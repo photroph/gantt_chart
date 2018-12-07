@@ -22,10 +22,12 @@ if (($handle = fopen("./tasks.csv", "r")) !== FALSE) {
     fclose($handle);
 }
 
-echo 'showing from ';
-echo $oldest_start_date;
-echo ' to ';
-echo $newest_end_date;
+$today = date('Y-m-d');
+if($today > $newest_end_date){
+    $newest_end_date = $today;
+}else if ($today < $oldest_start_date){
+    $oldest_start_date = $today;
+}
 $y = date('Y', strtotime($oldest_start_date));
 $m = date('m', strtotime($oldest_start_date));
 $d = date('d', strtotime($oldest_start_date));
@@ -42,6 +44,7 @@ $d = date('d', strtotime($oldest_start_date));
 <body>
 <div class="wrapper">
     <h1 class="title">gantt chart</h1>
+    <p>showing from <?php echo $oldest_start_date; ?> to <?php echo $newest_end_date; ?></p>
     <div class="task_display_area">
         <form action="./delete_task.php" name="delete_task" method="post">
             <input type="hidden" name="task_id_to_delete" id="task_id_to_delete" value="">
@@ -58,10 +61,6 @@ $d = date('d', strtotime($oldest_start_date));
         }
         ?>
             </div>
-
-            <form action="./sort_tasks.php" name="sorted" method="post">
-                <input type="hidden" id="sorted" name="sorted">
-            </form>
 
             <form action="./register.php" id="add_task" method="post">
                 <input type="text" name="task_name" placeholder="name of task">
@@ -105,6 +104,7 @@ $d = date('d', strtotime($oldest_start_date));
 </div>
 <script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
 <script src="http://code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.6.1/Sortable.min.js"></script>
 <script src="./index.js"></script>
 </body>
 </html>

@@ -1,6 +1,5 @@
 <?php
-
-$sorted = explode(',', $_POST['sorted']);
+$sorted = $_POST['sorted'];
 $item_num = count($sorted);
 
 // read tasks
@@ -23,7 +22,4 @@ for($i = 0; $i < $item_num; $i++){
     fputcsv($renew_csv, $tasks[intval($sorted[$i])]);
 }
 fclose($renew_csv);
-
-header('Location: ./');
-exit();
 ?>

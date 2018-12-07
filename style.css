@@ -13,21 +13,28 @@
 
 .task_display_area {
   display: flex;
+  width: 100%;
 }
 .task {
+  width: 100%;
   line-height: 24px;
 }
 .task .datetime_start,
 .task .datetime_end,
 .task i
 {
-  margin-left: 0.5rem;
+  margin-left: 0.4rem;
 }
+.task_name { display: inline-block; width: 25%; }
+.datetime_start { display: inline-block; width: 29%; }
+.datetime_end { display: inline-block; width: 29%; }
+.fa-plus { display: inline-block; width: 3%; }
+.fa-trash-alt { display: inline-block; width: 3%; }
 
 .childtask {
-  margin-left: 1rem;
   color: #6e6e6e;
 }
+.childtask .task_name { text-indent: 1em; }
 form#add_task {
   padding-top: 0.5rem;
   margin-top: 1rem;
@@ -43,6 +50,7 @@ input[name='task_name'] {
   margin-top: 24px;
 }
 .tasks {
+  width: 100%;
   height: 64vh;
   overflow-y: scroll;
 }

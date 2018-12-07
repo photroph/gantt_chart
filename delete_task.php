@@ -3,8 +3,6 @@ ini_set('display_errors', 1);
 
 $task_to_delete = $_POST['task_id_to_delete'];
 
-echo 'delete '.$task_to_delete.'<br>';
-
 $row = 0;
 $tasks = [];
 if (($handle = fopen("./tasks.csv", "r")) !== FALSE) {
@@ -27,7 +25,4 @@ if(is_numeric($key_to_delete)){
     }
     fclose($renew_csv);
 }
-
-header('Location: ./');
-exit();
- ?>
+?>
