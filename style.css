@@ -54,9 +54,13 @@ input[name='task_name'] {
   height: 64vh;
   overflow-y: scroll;
 }
+.year {
+  position: relative;
+  display: inline-block;
+}
 .year_character {
   position: absolute;
-  bottom: 0;
+  bottom: 2em;
   left: 1em;
   font-size: 5em;
   color: gray;

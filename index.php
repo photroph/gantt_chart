@@ -63,10 +63,10 @@ $d = date('d', strtotime($oldest_start_date));
             </div>
 
             <form action="./register.php" id="add_task" method="post">
-                <input type="text" name="task_name" placeholder="name of task">
-                <input type="date" name="task_start" placeholder="start date of the task">
+                <input type="text" name="task_name" placeholder="name of task" required>
+                <input type="date" name="task_start" placeholder="start date of the task" required>
                 ~
-                <input type="date" name="task_end" placeholder="deadline of the task">
+                <input type="date" name="task_end" placeholder="deadline of the task" required>
                 <input type="submit">
             </form>
         </div>
@@ -89,7 +89,7 @@ $d = date('d', strtotime($oldest_start_date));
                             $d = date('d', strtotime($i));
                             if($d === '01'){
                                 if($m === '01'){
-                                    echo '</div><!--year--><div class="year year_'.$y.'><div class="year_character">'.$y.'<div>';
+                                    echo '</div></div><!--year--><div class="year year_'.$y.'"><div class="year_character">'.$y.'<div>';
                                 }
                                 echo '</div></div><!--month--><div class="month month_'.$m.'"><div class="month_character">'.$m.'</div><div class="day_wrapper">';
                             }
@@ -101,6 +101,9 @@ $d = date('d', strtotime($oldest_start_date));
             </div>
         </div>
     </div>
+    <form action="./sort_tasks.php" name="sorted" method="post">
+        <input type="hidden" id="sorted" name="sorted">
+    </form>
 </div>
 <script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
 <script src="http://code.jquery.com/ui/1.11.3/jquery-ui.js"></script>

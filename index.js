@@ -88,17 +88,8 @@ $(function() {
 $('.sortable').bind('sortstop', function (event, ui) {
     // ソートが完了したら実行される。
     var result = $(".sortable").sortable("toArray");
-    $(function(){
-        $.ajax('sort_tasks.php',{
-            type: 'post',
-            dataType: 'text',
-            data: { 'sorted': result }
-        }).done(function(response, textStatus, xhr) {
-            console.log("ajax connection succeeded");
-        }).fail(function(xhr, textStatus, errorThrown) {
-            console.log("failed to ajax connection");
-        });
-    });
+    $('#sorted').val(result);
+    document.sorted.submit();
 })
 
 function deleteTask(event){
@@ -294,6 +285,7 @@ function extendPeriod(event){
                 }
             }).done(function(response, textStatus, xhr) {
                 console.log("ajax connection succeeded");
+                console.log(response);
                 response_parsed = JSON.parse(response);
                 renewTaskAjax(response_parsed[0], response_parsed[1], response_parsed[2], response_parsed[3]);
             }).fail(function(xhr, textStatus, errorThrown) {
