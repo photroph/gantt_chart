@@ -1,9 +1,129 @@
-const tasks = document.getElementsByClassName('task');
-const y_task0 = tasks[0].getBoundingClientRect().top;
+let animals;
+const httpObj = new XMLHttpRequest();
+httpObj.open("get", "./test.json", false);
+httpObj.onload = function(){
+    animals = JSON.parse(this.responseText);
+}
+httpObj.send(null);
+const task_disp_area = document.getElementById('tasks');
+task_disp_area.innerHTML = `
+    <draggable v-model="animals" :element="'ul'" @end="dragItem">
+        <li v-for="(animal, i) in animals" class="task" v-bind:id="'item_'+ i">
+            <span class="task_name">{{ i }} : {{ animal.name }}</span>
+            <span class="datetime_start">{{ animal.start_date }}</span>
+            <span class="datetime_end">{{ animal.end_date }}</span>
+            <i title="add child task" class="fas fa-plus"></i>
+            <i title="delete this task" class="delete_btn far fa-trash-alt" @click="remove(i)"></i>
+            <ul> <draggable v-model="animal.child">
+                <li v-for="(child, j) in animal.child" class="task childtask" v-bind:id="'item_'+ i + '-' + j">
+                    <span class="task_name">{{ i }} - {{ j }} : {{ child.name }}</span>
+                    <span class="datetime_start">{{ child.start_date }}</span>
+                    <span class="datetime_end">{{ child.end_date }}</span>
+                    <i title="delete this task" class="delete_btn far fa-trash-alt" @click="removechild(i, j)"></i>
+                </li>
+            </draggable> </ul>
+        </li>
+    </draggable>`;
+const app = new Vue ({
+    el: '#tasks',
+    data: ()=>{
+        return {
+            animals: animals
+        }
+    },
+    methods: {
+        dragItem: function(event){
+            console.log(event.item);
+            console.log(JSON.stringify(this.animals));
+            let params = new URLSearchParams();
+            let ob = this;
+            params.append('animals', JSON.stringify(this.animals));
+            
+            axios.post('sort_item.php', params)
+              .then(response => {
+                  let res = response.data;
+                  console.log(JSON.parse(response.data.text));
+                  ob.setPeriod();
+              }).catch(error => {
+                // eslint-disable-next-line
+                console.log(error);
+              });
+        },
+        remove: function(index){
+            this.animals.splice(index,1);
+            let self = this;
+            setTimeout(function(){
+                self.setPeriod();
+            }, 0);
+        },
+        removechild: function(i, j){
+            this.animals[i].child.splice(j, 1);
+            console.log(this.animals);
+            let self = this;
+            setTimeout(function(){
+                self.setPeriod();
+            }, 0);
+        },
+        setPeriod: function(){
+            let periods = document.getElementsByClassName('period')
+            while(periods.length > 0){
+                periods[0].remove();
+            }
+            let tasks = document.getElementsByClassName('task');
+            // console.log(tasks);
+            let y_task0 = tasks[0].getBoundingClientRect().top;
+            let task_num_total = 0;
+            for (let i = 0; i < tasks.length; i++){
+                //tasks[i].addEventListener('click', taskEdit, false);
+                //console.log(tasks[i].children);
+                let y_task = tasks[i].getBoundingClientRect().top;
+                let start_date = tasks[i].children[1].textContent;
+                let end_date = tasks[i].children[2].textContent;
+                let span_start = document.getElementById(start_date);
+                let span_end = document.getElementById(end_date);
+
+                let start_x = span_start.getBoundingClientRect().left;
+                let end_x = span_end.getBoundingClientRect().right;
+                let width_period = end_x - start_x;
+
+                let period = document.createElement('div');
+                period.classList.add('period');
+                period.id = 'period_' + i;
+                period.style.width = width_period + 'px';
+                let period_top = y_task - y_task0 + 26;
+                period.style.top = period_top + 'px';
+                // period.addEventListener('click', taskEdit,false);
+                let leftend_period = document.createElement('div');
+                leftend_period.classList.add('leftend_period');
+                leftend_period.addEventListener('mousedown', getPeriodWidth, false);
+                let rightend_period = document.createElement('div');
+                rightend_period.classList.add('rightend_period');
+                rightend_period.addEventListener('mousedown', getPeriodWidth, false);
+                period.appendChild(rightend_period);
+                period.appendChild(leftend_period);
+                span_start.appendChild(period);
+
+                task_num_total = i;
+            }
+        }
+    },
+    mounted: function(){
+        this.setPeriod();
+    }
+});
+let tasks = document.getElementsByClassName('task');
+let y_task0 = tasks[0].getBoundingClientRect().top;
 let task_num_total = 0;
 
-const task_disp_area = document.getElementById('tasks');
 const calendar = document.getElementById('calendar');
+const add_btn = document.getElementById('add_btn');
+add_btn.addEventListener('click', function(){
+    let item_to_add = {
+        "name": document.add_task.children[0].value,
+        "start_date": document.add_task.children[1].value,
+        "end_date": document.add_task.children[2].value
+    }
+});
 
 task_disp_area.addEventListener('scroll', function() {
     calendar.scrollTop = task_disp_area.scrollTop;
@@ -20,56 +140,6 @@ const span_today = document.getElementById(today);
 span_today.classList.add('today');
 span_today.scrollIntoView({behavior: "instant", block: "start", inline: "start"});
 
-for (let i = 0; i < tasks.length; i++){
-    tasks[i].addEventListener('click', taskEdit, false);
-    let y_task = tasks[i].getBoundingClientRect().top;
-    let start_date = tasks[i].childNodes[1].textContent;
-    let end_date = tasks[i].childNodes[2].textContent;
-    let span_start = document.getElementById(start_date);
-    let span_end = document.getElementById(end_date);
-
-    let start_x = span_start.getBoundingClientRect().left;
-    let end_x = span_end.getBoundingClientRect().right;
-    let width_period = end_x - start_x;
-
-    let period = document.createElement('div');
-    period.classList.add('period');
-    period.id = 'period_' + i;
-    period.style.width = width_period + 'px';
-    let period_top = y_task - y_task0 + 26;
-    period.style.top = period_top + 'px';
-    // period.addEventListener('click', taskEdit,false);
-    let leftend_period = document.createElement('div');
-    leftend_period.classList.add('leftend_period');
-    leftend_period.addEventListener('mousedown', getPeriodWidth,false);
-    let rightend_period = document.createElement('div');
-    rightend_period.classList.add('rightend_period');
-    rightend_period.addEventListener('mousedown', getPeriodWidth,false);
-    period.appendChild(rightend_period);
-    period.appendChild(leftend_period);
-    span_start.appendChild(period);
-
-    // append append button
-    if (tasks[i].classList.value == 'task'){
-        let add_child_btn = document.createElement('i');
-        add_child_btn.setAttribute('title', 'add child task');
-        add_child_btn.classList.add('fas', 'fa-plus');
-        add_child_btn.addEventListener('click', function(e){
-            addChildTask(e);
-        }, false);
-        tasks[i].appendChild(add_child_btn);
-    }
-
-    // append delete button
-    let delete_btn = document.createElement('i');
-    delete_btn.setAttribute('title', 'delete this task');
-    delete_btn.classList.add('delete_btn', 'far', 'fa-trash-alt');
-    delete_btn.addEventListener('click', function(e){
-        deleteTask(e);
-    }, false);
-    tasks[i].appendChild(delete_btn);
-    task_num_total = i;
-}
 
 // border modification
 setTimeout(function(){
@@ -78,38 +148,6 @@ setTimeout(function(){
         day_div[i].style.height = (task_num_total * 24 + 72) + 'px';
     }
 }, 0);
-
-// let tasks can be DnDed
-$(function() {
-      $(".sortable").sortable();
-      $(".sortable").disableSelection();
-});
-
-$('.sortable').bind('sortstop', function (event, ui) {
-    // ソートが完了したら実行される。
-    var result = $(".sortable").sortable("toArray");
-    $('#sorted').val(result);
-    document.sorted.submit();
-})
-
-function deleteTask(event){
-    id_to_delete = event.target.parentNode.id;
-    if(window.confirm('Delete ' + event.target.parentNode.childNodes[0].textContent)){
-        $(function(){
-            $.ajax('delete_task.php',{
-                type: 'post',
-                dataType: 'text',
-                data: { 'task_id_to_delete': id_to_delete }
-            }).done(function(response, textStatus, xhr) {
-                console.log("ajax connection succeeded");
-                document.getElementById(id_to_delete).remove();
-            }).fail(function(xhr, textStatus, errorThrown) {
-                console.log("failed to ajax connection");
-            });
-        });
-    }
-    event.preventDefault();
-}
 
 function addChildTask(e){
     const mordal = document.createElement('div');
@@ -251,6 +289,8 @@ function getExtendedPeriodWidth(event){
         if (diff_x >= 15){
             period_edit_flg = 'left_shorten'
             day_to_extend = Math.floor((diff_x)/ 30);
+            console.log(app);
+            console.log(app._data.animals);
             console.log('first day_to_shorten = ' + day_to_extend);
         }else if(diff_x <= -15){
             period_edit_flg = 'left_ext'

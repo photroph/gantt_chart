@@ -54,20 +54,26 @@ $d = date('d', strtotime($oldest_start_date));
         <?php
         for ($i = 0; $i < $row; $i++) {
             if($tasks[$i][3]){
-            echo '<div id =task_'.$i.' class="task childtask"><span class="task_name">'.$tasks[$i][0].'</span><span class="datetime_start">'.$tasks[$i][1].'</span><span class="datetime_end">'.$tasks[$i][2].'</span></div>';
+                echo '<div id =task_'.$i.' class="task childtask">
+                    <span class="task_name">'.$tasks[$i][0].'</span>
+                    <span class="datetime_start">'.$tasks[$i][1].'</span>
+                    <span class="datetime_end">'.$tasks[$i][2].'</span></div>';
             }else{
-            echo '<div id =task_'.$i.' class="task"><span class="task_name">'.$tasks[$i][0].'</span><span class="datetime_start">'.$tasks[$i][1].'</span><span class="datetime_end">'.$tasks[$i][2].'</span></div>';
+                echo '<div id =task_'.$i.' class="task">
+                    <span class="task_name">'.$tasks[$i][0].'</span>
+                    <span class="datetime_start">'.$tasks[$i][1].'</span>
+                    <span class="datetime_end">'.$tasks[$i][2].'</span></div>';
             }
         }
         ?>
             </div>
 
-            <form action="./register.php" id="add_task" method="post">
+            <form action="" id="add_task" name="add_task">
                 <input type="text" name="task_name" placeholder="name of task" required>
                 <input type="date" name="task_start" placeholder="start date of the task" required>
                 ~
                 <input type="date" name="task_end" placeholder="deadline of the task" required>
-                <input type="submit">
+                <button id="add_btn">add</button>
             </form>
         </div>
         <div class="calendar_wrapper">
@@ -107,7 +113,10 @@ $d = date('d', strtotime($oldest_start_date));
 </div>
 <script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
 <script src="http://code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.6.1/Sortable.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.17.0/vuedraggable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
 <script src="./index.js"></script>
 </body>
 </html>
