@@ -5,8 +5,9 @@
 }
 .calendar {
   position: relative;
+  display: flex;
   width: max-content;
-  height: 70vh;
+  height: 67vh;
   background-color: #fafafa;
   overflow-x: scroll;
 }
@@ -60,6 +61,7 @@ input[name='task_name'] {
 }
 .tasks ul {
   padding: 0;
+  margin: 0;
 }
 .year {
   position: relative;
@@ -98,7 +100,7 @@ input[name='task_name'] {
 .day_01 {
   border-left: 2px solid gray;
 }
-.day::after {
+.day::before {
   position: sticky;
   top: 0;
   left: 0;
@@ -108,38 +110,150 @@ input[name='task_name'] {
   text-align: center;
   content: '';
 }
+.day::after {
+  font-size: 5rem;
+}
 
-.day_01::after { content: '01'; }
-.day_02::after { content: '02'; }
-.day_03::after { content: '03'; }
-.day_04::after { content: '04'; }
-.day_05::after { content: '05'; }
-.day_06::after { content: '06'; }
-.day_07::after { content: '07'; }
-.day_08::after { content: '08'; }
-.day_09::after { content: '09'; }
-.day_10::after { content: '10'; }
-.day_11::after { content: '11'; }
-.day_12::after { content: '12'; }
-.day_13::after { content: '13'; }
-.day_14::after { content: '14'; }
-.day_15::after { content: '15'; }
-.day_16::after { content: '16'; }
-.day_17::after { content: '17'; }
-.day_18::after { content: '18'; }
-.day_19::after { content: '19'; }
-.day_20::after { content: '20'; }
-.day_21::after { content: '21'; }
-.day_22::after { content: '22'; }
-.day_23::after { content: '23'; }
-.day_24::after { content: '24'; }
-.day_25::after { content: '25'; }
-.day_26::after { content: '26'; }
-.day_27::after { content: '27'; }
-.day_28::after { content: '28'; }
-.day_29::after { content: '29'; }
-.day_30::after { content: '30'; }
-.day_31::after { content: '31'; }
+.day03.month_01::after {
+  position: sticky;
+  top: 50vh;
+  left: 0;
+  display: inline-block;
+  color: #6e6e6e;
+  text-align: center;
+  content: '01';
+}
+.month_02.day_03::after {
+  position: sticky;
+  top: 50vh;
+  left: 0;
+  display: inline-block;
+  color: #6e6e6e;
+  text-align: center;
+  content: '02';
+}
+.month_03.day03::after {
+  position: sticky;
+  top: 50vh;
+  left: 0;
+  display: inline-block;
+  color: #6e6e6e;
+  text-align: center;
+  content: '03';
+}
+.month_04.day03::after { 
+  position: sticky;
+  top: 50vh;
+  left: 0;
+  display: inline-block;
+  color: #6e6e6e;
+  text-align: center;
+  content: '04';
+}
+.month_05.day03::after {
+  position: sticky;
+  top: 50vh;
+  left: 0;
+  display: inline-block;
+  color: #6e6e6e;
+  text-align: center;
+  content: '05';
+}
+.month_06.day03::after { 
+  position: sticky;
+  top: 50vh;
+  left: 0;
+  display: inline-block;
+  color: #6e6e6e;
+  text-align: center;
+  content: '06';
+}
+.month_07.day03::after {
+  position: sticky;
+  top: 50vh;
+  left: 0;
+  display: inline-block;
+  color: #6e6e6e;
+  text-align: center;
+  content: '07';
+}
+.month_08.day03::after {
+  position: sticky;
+  top: 50vh;
+  left: 0;
+  display: inline-block;
+  color: #6e6e6e;
+  text-align: center;
+  content: '08';
+}
+.month_09.day03::after { 
+  position: sticky;
+  top: 50vh;
+  left: 0;
+  display: inline-block;
+  color: #6e6e6e;
+  text-align: center;
+  content: '09';
+}
+.month_10.day03::after {
+  position: sticky;
+  top: 50vh;
+  left: 0;
+  display: inline-block;
+  color: #6e6e6e;
+  text-align: center;
+  content: '10';
+}
+.month_11.day03::after { 
+  position: sticky;
+  top: 50vh;
+  left: 0;
+  display: inline-block;
+  color: #6e6e6e;
+  text-align: center;
+  content: '11';
+}
+.month_12.day03::after {
+  position: sticky;
+  top: 50vh;
+  left: 0;
+  display: inline-block;
+  color: #6e6e6e;
+  text-align: center;
+  content: '12';
+}
+
+.day_01::before { content: '01'; }
+.day_02::before { content: '02'; }
+.day_03::before { content: '03'; }
+.day_04::before { content: '04'; }
+.day_05::before { content: '05'; }
+.day_06::before { content: '06'; }
+.day_07::before { content: '07'; }
+.day_08::before { content: '08'; }
+.day_09::before { content: '09'; }
+.day_10::before { content: '10'; }
+.day_11::before { content: '11'; }
+.day_12::before { content: '12'; }
+.day_13::before { content: '13'; }
+.day_14::before { content: '14'; }
+.day_15::before { content: '15'; }
+.day_16::before { content: '16'; }
+.day_17::before { content: '17'; }
+.day_18::before { content: '18'; }
+.day_19::before { content: '19'; }
+.day_20::before { content: '20'; }
+.day_21::before { content: '21'; }
+.day_22::before { content: '22'; }
+.day_23::before { content: '23'; }
+.day_24::before { content: '24'; }
+.day_25::before { content: '25'; }
+.day_26::before { content: '26'; }
+.day_27::before { content: '27'; }
+.day_28::before { content: '28'; }
+.day_29::before { content: '29'; }
+.day_30::before { content: '30'; }
+.day_31::before { content: '31'; }
 .today {
   font-weight: bold;
 }

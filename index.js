@@ -5,6 +5,12 @@ httpObj.onload = function(){
     animals = JSON.parse(this.responseText);
 }
 httpObj.send(null);
+
+const calendar = document.getElementById('calendar');
+calendar.innerHTML = `
+    <div v-for="n in days_disp" v-bind:id="date_from.add(1, 'days').format('YYYY-MM-DD')" :key="n" :style="{ width: width_num + 'px', height: height_num }" :class="'day day_'+date_from.add(1, 'days').format('DD')+' month_'+date_from.add(-1, 'days').format('MM')">
+    </div>`;
+
 const task_disp_area = document.getElementById('tasks');
 task_disp_area.innerHTML = `
     <draggable v-model="animals" :element="'ul'" @end="dragItem">
@@ -12,7 +18,7 @@ task_disp_area.innerHTML = `
             <span class="task_name">{{ i }} : {{ animal.name }}</span>
             <span class="datetime_start">{{ animal.start_date }}</span>
             <span class="datetime_end">{{ animal.end_date }}</span>
-            <i title="add child task" class="fas fa-plus"></i>
+            <i title="add child task" class="fas fa-plus" @click="displayMordal(i)"></i>
             <i title="delete this task" class="delete_btn far fa-trash-alt" @click="remove(i)"></i>
             <ul> <draggable v-model="animal.child">
                 <li v-for="(child, j) in animal.child" class="task childtask" v-bind:id="'item_'+ i + '-' + j">
@@ -24,6 +30,8 @@ task_disp_area.innerHTML = `
             </draggable> </ul>
         </li>
     </draggable>`;
+
+
 const app = new Vue ({
     el: '#tasks',
     data: ()=>{
@@ -49,20 +57,93 @@ const app = new Vue ({
                 console.log(error);
               });
         },
+        displayMordal: function(i){
+            const mordal = document.createElement('div');
+            mordal.id = 'add_child_mordal';
+            mordal.classList.add('add_child');
+            const mordal_close = document.createElement('div');
+            mordal_close.classList.add('mordal_close');
+            mordal_close.textContent = '×';
+            mordal_close.addEventListener('click', function(){
+                const mordal_to_remove = document.getElementById('add_child_mordal');
+                if(mordal_to_remove){
+                    mordal_to_remove.parentNode.removeChild(mordal_to_remove);
+                }
+            },false);
+            mordal.appendChild(mordal_close);
+            const form_mordal = document.createElement('div');
+            const task_name_child = document.createElement('input');
+            task_name_child.setAttribute('type', 'text');
+            task_name_child.setAttribute('name', 'task_name_child');
+            task_name_child.setAttribute('placeholder', 'task name of child');
+            form_mordal.appendChild(task_name_child);
+            const start_date_child = document.createElement('input');
+            start_date_child.setAttribute('type', 'date');
+            start_date_child.setAttribute('name', 'start_date_child');
+            form_mordal.appendChild(start_date_child);
+            const span_date = document.createElement('span');
+            span_date.textContent = '〜';
+            form_mordal.appendChild(span_date);
+            const end_date_child = document.createElement('input');
+            end_date_child.setAttribute('type', 'date');
+            end_date_child.setAttribute('name', 'end_date_child');
+            form_mordal.appendChild(end_date_child);
+            const add_child_submit = document.createElement('button');
+            add_child_submit.textContent = 'add childtask';
+            add_child_submit.addEventListener('click', { i : i, handleEvent: function handleEvent(event){
+                console.log(i);
+                let items = document.getElementsByClassName('task');
+                let self = app;
+                if (app.animals[i].child){
+                    app.$set(app.animals[i].child, [app.animals[i].child.length], JSON.parse('{"name": "'+ task_name_child.value + '", "start_date": "'+ start_date_child.value +'", "end_date": "'+ end_date_child.value +'" }'));
+                } else {
+                    app.$set(app.animals[i], 'child', []);
+                    app.$set(app.animals[i].child, [0], JSON.parse('{"name": "'+ task_name_child.value + '", "start_date": "'+ start_date_child.value +'", "end_date": "'+ end_date_child.value +'" }'));
+                }
+                let params = new URLSearchParams();
+                params.append('animals', JSON.stringify(app.animals));
+                
+                axios.post('sort_item.php', params)
+                  .then(response => {
+                      let res = response.data;
+                      // console.log(JSON.parse(response.data.text));
+                      self.setPeriod();
+                  }).catch(error => {
+                    // eslint-disable-next-line
+                    console.log(error);
+                  });
+            }}, false);
+            form_mordal.appendChild(add_child_submit);
+
+            mordal.appendChild(form_mordal);
+            document.body.appendChild(mordal);
+        },
         remove: function(index){
             this.animals.splice(index,1);
             let self = this;
-            setTimeout(function(){
-                self.setPeriod();
-            }, 0);
+            axios.post('sort_item.php', params)
+              .then(response => {
+                  let res = response.data;
+                  // console.log(JSON.parse(response.data.text));
+                  self.setPeriod();
+              }).catch(error => {
+                // eslint-disable-next-line
+                console.log(error);
+              });
         },
         removechild: function(i, j){
             this.animals[i].child.splice(j, 1);
             console.log(this.animals);
             let self = this;
-            setTimeout(function(){
-                self.setPeriod();
-            }, 0);
+            axios.post('sort_item.php', params)
+              .then(response => {
+                  let res = response.data;
+                  // console.log(JSON.parse(response.data.text));
+                  self.setPeriod();
+              }).catch(error => {
+                // eslint-disable-next-line
+                console.log(error);
+              });
         },
         setPeriod: function(){
             let periods = document.getElementsByClassName('period')
@@ -74,12 +155,10 @@ const app = new Vue ({
             let y_task0 = tasks[0].getBoundingClientRect().top;
             let task_num_total = 0;
             for (let i = 0; i < tasks.length; i++){
-                //tasks[i].addEventListener('click', taskEdit, false);
-                //console.log(tasks[i].children);
                 let y_task = tasks[i].getBoundingClientRect().top;
                 let start_date = tasks[i].children[1].textContent;
                 let end_date = tasks[i].children[2].textContent;
-                let span_start = document.getElementById(start_date);
+                let span_start = document.getElementById(String(start_date));
                 let span_end = document.getElementById(end_date);
 
                 let start_x = span_start.getBoundingClientRect().left;
@@ -88,7 +167,7 @@ const app = new Vue ({
 
                 let period = document.createElement('div');
                 period.classList.add('period');
-                period.id = 'period_' + i;
+                period.id = tasks[i].id.replace('item', 'period');
                 period.style.width = width_period + 'px';
                 let period_top = y_task - y_task0 + 26;
                 period.style.top = period_top + 'px';
@@ -107,31 +186,99 @@ const app = new Vue ({
             }
         }
     },
+//    mounted: function(){
+//        this.setPeriod();
+//    }
+});
+
+const app_cal = new Vue ({
+    el: '#calendar',
+    data: ()=>{
+        return {
+          date_from : moment(),
+          date_til : moment(),
+          days_disp: Number,
+          width_num : 32,
+          height_num : '70vh',
+          item_list : [],
+        }
+    },
+    methods: {
+      getItem: function(){
+          this.item_list = app.animals;
+          let oldest_start_date = moment('2100-12-31');
+          let newest_end_date = moment('1970-01-01');
+          // eslint-disable-next-line
+          console.log('Calendar.created');
+          // eslint-disable-next-line
+          console.log(this.item_list);
+
+          for (let i = 0; i < this.item_list.length; i++) {
+              let date_start = moment(this.item_list[i].start_date);
+              let date_end = moment(this.item_list[i].end_date);
+              if (date_start < oldest_start_date){
+                  oldest_start_date = date_start;
+              }
+              if (date_end > newest_end_date){
+                  newest_end_date = date_end;
+              }
+          }
+          if(oldest_start_date < this.date_from){
+              this.date_from = oldest_start_date;
+          }else if(newest_end_date > this.date_til){
+              this.date_til = newest_end_date;
+          }
+          this.date_from.add(-1, 'days');
+          this.days_disp = newest_end_date.diff(oldest_start_date, 'days');
+      }
+    },
+    created: function(){
+        this.getItem();
+    },
     mounted: function(){
-        this.setPeriod();
+        app.setPeriod();
     }
 });
 let tasks = document.getElementsByClassName('task');
 let y_task0 = tasks[0].getBoundingClientRect().top;
-let task_num_total = 0;
+let task_num_total = tasks.length;
 
-const calendar = document.getElementById('calendar');
+// const calendar = document.getElementById('calendar');
 const add_btn = document.getElementById('add_btn');
 add_btn.addEventListener('click', function(){
+    let input_fields = document.getElementById('add_task');
     let item_to_add = {
-        "name": document.add_task.children[0].value,
-        "start_date": document.add_task.children[1].value,
-        "end_date": document.add_task.children[2].value
+        "name": input_fields.children[0].value,
+        "start_date": input_fields.children[1].value,
+        "end_date": input_fields.children[2].value
+    };
+    if (input_fields.children[0].value && input_fields.children[1].value && input_fields.children[2].value){
+        app.animals.push(item_to_add);
+
+        let params = new URLSearchParams();
+        params.append('animals', JSON.stringify(app.animals));
+        
+        axios.post('sort_item.php', params)
+          .then(response => {
+              console.log('ajax connection succeeded');
+              input_fields.children[0].value = "";
+              let res = response.data;
+              console.log(JSON.parse(response.data.text));
+              app.setPeriod();
+          }).catch(error => {
+            // eslint-disable-next-line
+            console.log(error);
+          });
+    }else{
+        alert('fill all 3 fields');
     }
 });
-
-task_disp_area.addEventListener('scroll', function() {
-    calendar.scrollTop = task_disp_area.scrollTop;
+document.getElementById('tasks').addEventListener('scroll', function() {
+    document.getElementById('calendar').scrollTop = document.getElementById('tasks').scrollTop;
 });
-calendar.addEventListener('scroll', function() {
-    task_disp_area.scrollTop = calendar.scrollTop;
+document.getElementById('calendar').addEventListener('scroll', function() {
+    document.getElementById('tasks').scrollTop = document.getElementById('calendar').scrollTop;
 });
-calendar.addEventListener('mouseup', extendPeriod,false);
 
 // scroll today column into view
 let today = new Date();
@@ -266,98 +413,45 @@ function getPeriodWidth(event){
     period_to_edit = event.target.parentNode;
     period_width_mousedown = period_to_edit.getBoundingClientRect().width;
     calendar.addEventListener('mousemove', getExtendedPeriodWidth,false);
+    calendar.addEventListener('mouseup', function(){
+        calendar.removeEventListener('mousemove', getExtendedPeriodWidth,false);
+    },false);
 }
 
 function getExtendedPeriodWidth(event){
-    if(period_end_which == 'rightend_period'){
-        let x_period_rightend = period_to_edit.getBoundingClientRect().right;
-        let x_cursor = event.pageX;
-        let diff_x = x_cursor - x_period_rightend;
-        if (diff_x >= 15){
-            period_edit_flg = 'right_ext'
-            day_to_extend = Math.floor((diff_x + 15)/ 30);
-            console.log('last day_to_extend = ' + day_to_extend);
-        }else if(diff_x <= -15){
-            period_edit_flg = 'right_shorten'
-            day_to_extend = Math.floor((diff_x + 30)/ 30);
-            console.log('last day_to_shorten = ' + day_to_extend);
+    // console.log(event.clientX, event.clientY);
+    // console.log(document.elementFromPoint(event.clientX, event.clientY).id);
+    // console.log(period_to_edit);
+    let item_to_edit = period_to_edit.id.replace('period_', '');
+    // console.log(item_to_edit);
+    if(document.elementFromPoint(event.clientX, event.clientY).id){
+        if(period_end_which == 'rightend_period'){
+            if(item_to_edit.includes('-')){
+                item_to_edit = item_to_edit.split('-');
+                app.animals[item_to_edit[0]].child[item_to_edit[1]].end_date = document.elementFromPoint(event.clientX, event.clientY).id;
+            }else{
+                app.animals[item_to_edit].end_date = document.elementFromPoint(event.clientX, event.clientY).id;
+            }
+        }else if(period_end_which == 'leftend_period'){
+            if(item_to_edit.includes('-')){
+                item_to_edit = item_to_edit.split('-');
+                app.animals[item_to_edit[0]].child[item_to_edit[1]].start_date = document.elementFromPoint(event.clientX, event.clientY).id;
+            }else{
+                app.animals[item_to_edit].start_date = document.elementFromPoint(event.clientX, event.clientY).id;
+            }
         }
-    }else if(period_end_which == 'leftend_period'){
-        let x_period_leftend = period_to_edit.getBoundingClientRect().left;
-        let x_cursor = event.pageX;
-        let diff_x = x_cursor - x_period_leftend;
-        if (diff_x >= 15){
-            period_edit_flg = 'left_shorten'
-            day_to_extend = Math.floor((diff_x)/ 30);
-            console.log(app);
-            console.log(app._data.animals);
-            console.log('first day_to_shorten = ' + day_to_extend);
-        }else if(diff_x <= -15){
-            period_edit_flg = 'left_ext'
-            day_to_extend = Math.floor((diff_x + 15)/ 30);
-            console.log('first day_to_extend = ' + day_to_extend);
-        }
+        let params = new URLSearchParams();
+        params.append('animals', JSON.stringify(app.animals));
+        
+        axios.post('sort_item.php', params)
+          .then(response => {
+              let res = response.data;
+              // console.log(JSON.parse(response.data.text));
+              app.setPeriod();
+          }).catch(error => {
+            // eslint-disable-next-line
+            console.log(error);
+          });
     }
     event.preventDefault();
-}
-
-function extendPeriod(event){
-    calendar.removeEventListener('mousemove', getExtendedPeriodWidth,false);
-    period_width_mousedown = 0;
-    if(Math.abs(day_to_extend) >= 1){
-        console.log(Math.abs(day_to_extend));
-        const edit_period = document.getElementById('edit_period');
-        const period_id_to_edit = period_to_edit.id.replace('period_','');
-        edit_period.value = day_to_extend;
-        document.getElementById('period_to_edit').value = period_id_to_edit;
-        document.getElementById('edit_period_LR').value = period_edit_flg;
-        // document.edit_period.submit();
-        $(function(){
-            $edit_period = day_to_extend;
-            console.log($edit_period);
-            $.ajax('edit_period.php',{
-                type: 'post',
-                dataType: 'text',
-                data: {
-                    'edit_period': day_to_extend,
-                    'period_to_edit': period_id_to_edit,
-                    'edit_period_LR': period_edit_flg
-                }
-            }).done(function(response, textStatus, xhr) {
-                console.log("ajax connection succeeded");
-                console.log(response);
-                response_parsed = JSON.parse(response);
-                renewTaskAjax(response_parsed[0], response_parsed[1], response_parsed[2], response_parsed[3]);
-            }).fail(function(xhr, textStatus, errorThrown) {
-                console.log("failed to ajax connection");
-            });
-        });
-    }
-}
-
-function renewTaskAjax(item_to_edit, date_modified, day_to_modify, modify_type){
-    console.log('item_to_edit = '+item_to_edit);
-    console.log('date_modified = '+date_modified);
-    console.log('day = '+day_to_modify);
-    console.log('modify_type = '+modify_type);
-    const task_to_modify = document.getElementById('task_'+item_to_edit);
-    const period_to_modify = document.getElementById('period_'+item_to_edit);
-    if(modify_type.match('left')){
-        task_to_modify.children[1].textContent = date_modified;
-        if(modify_type.match('shorten')){
-            period_to_modify.style.width = (Number(period_to_modify.style.width.slice(0,-2)) - Number(day_to_modify)*31) + 'px';
-            document.getElementById(date_modified).append(period_to_modify);
-        }else if(modify_type.match('ext')){
-            period_to_modify.style.width = (Number(period_to_modify.style.width.slice(0,-2)) - Number(day_to_modify)*31) + 'px';
-            document.getElementById(date_modified).append(period_to_modify);
-        }
-    } else if(modify_type.match('right')){
-        task_to_modify.children[2].textContent = date_modified;
-        if(modify_type.match('shorten')){
-            period_to_modify.style.width = (Number(period_to_modify.style.width.slice(0,-2)) + Number(day_to_modify)*31) + 'px';
-        }else if(modify_type.match('ext')){
-            period_to_modify.style.width = (Number(period_to_modify.style.width.slice(0,-2)) + Number(day_to_modify)*31) + 'px';
-        }
-    }
-
 }
