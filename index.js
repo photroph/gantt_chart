@@ -18,19 +18,34 @@ task_disp_area.innerHTML = `
             <span class="task_name">{{ i }} : {{ animal.name }}</span>
             <span class="datetime_start">{{ animal.start_date }}</span>
             <span class="datetime_end">{{ animal.end_date }}</span>
-            <i title="add child task" class="fas fa-plus" @click="displayMordal(i)"></i>
-            <i title="delete this task" class="delete_btn far fa-trash-alt" @click="remove(i)"></i>
+            <i title="add child task" class="fas fa-plus" @click="addChildMordal(i)"></i>
+            <i title="Edit this item" class="far fa-edit" @click="editItem(i, 'parent')"></i>
+            <i title="delete this task" class="delete_btn far fa-trash-alt" @click="removeItem(i)"></i>
             <ul> <draggable v-model="animal.child">
                 <li v-for="(child, j) in animal.child" class="task childtask" v-bind:id="'item_'+ i + '-' + j">
                     <span class="task_name">{{ i }} - {{ j }} : {{ child.name }}</span>
                     <span class="datetime_start">{{ child.start_date }}</span>
                     <span class="datetime_end">{{ child.end_date }}</span>
+                    <i title="Edit this item" class="far fa-edit" @click="editItem(i, 'child', j)"></i>
                     <i title="delete this task" class="delete_btn far fa-trash-alt" @click="removechild(i, j)"></i>
                 </li>
             </draggable> </ul>
         </li>
     </draggable>`;
 
+const gray_mask = document.createElement('div');
+gray_mask.id = 'gray_mask';
+gray_mask.style.width = '100vw';
+gray_mask.style.height = '100vh';
+gray_mask.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+gray_mask.style.zIndex = '1';
+gray_mask.style.position = 'absolute';
+gray_mask.style.top = '0';
+gray_mask.style.left = '0';
+gray_mask.addEventListener('click', function(){
+    document.getElementById('edit_item_mordal').remove();
+    document.getElementById('gray_mask').remove();
+})
 
 const app = new Vue ({
     el: '#tasks',
@@ -57,7 +72,87 @@ const app = new Vue ({
                 console.log(error);
               });
         },
-        displayMordal: function(i){
+        editItem: function(i, item_type, j){
+            let mordal = document.createElement('div');
+            mordal.id = 'edit_item_mordal';
+            mordal.classList.add('add_child');
+            mordal.style.zIndex = '2';
+            let mordal_close = document.createElement('div');
+            mordal_close.classList.add('mordal_close');
+            mordal_close.textContent = '×';
+            mordal_close.addEventListener('click', function(){
+                document.getElementById('edit_item_mordal').remove();
+                document.getElementById('gray_mask').remove();
+            },false);
+            mordal.appendChild(mordal_close);
+            let form_mordal = document.createElement('div');
+            let new_item_name = document.createElement('input');
+            new_item_name.setAttribute('type', 'text');
+            new_item_name.setAttribute('placeholder', 'new item name');
+            new_item_name.setAttribute('required', true);
+            form_mordal.appendChild(new_item_name);
+            let new_start_date = document.createElement('input');
+            new_start_date.setAttribute('type', 'date');
+            new_start_date.setAttribute('required', true);
+            form_mordal.appendChild(new_start_date);
+            let span_date = document.createElement('span');
+            span_date.textContent = '〜';
+            form_mordal.appendChild(span_date);
+            let new_end_date = document.createElement('input');
+            new_end_date.setAttribute('type', 'date');
+            new_end_date.setAttribute('required', true);
+            form_mordal.appendChild(new_end_date);
+            let item_edit_submit = document.createElement('button');
+            item_edit_submit.style.display = 'block';
+            item_edit_submit.style.margin = '1rem auto';
+            item_edit_submit.textContent = 'Submit changes';
+            if(item_type === 'parent'){
+                new_item_name.value = app.animals[i].name;
+                new_start_date.value = app.animals[i].start_date;
+                new_end_date.value = app.animals[i].end_date;
+            }else if(item_type === 'child'){
+                new_item_name.value = app.animals[i].child[j].name;
+                new_start_date.value = app.animals[i].child[j].start_date;
+                new_end_date.value = app.animals[i].child[j].end_date;
+            }
+            item_edit_submit.addEventListener('click', { i : i, handleEvent: function handleEvent(event){
+                if (new_item_name.value && new_start_date.value < new_end_date.value){
+                    let items = document.getElementsByClassName('task');
+                    if(item_type === 'parent'){
+                        app.animals[i].name = new_item_name.value;
+                        app.animals[i].start_date = new_start_date.value;
+                        app.animals[i].end_date = new_end_date.value;
+                    }else if(item_type === 'child'){
+                        app.animals[i].child[j].name = new_item_name.value;
+                        app.animals[i].child[j].start_date = new_start_date.value;
+                        app.animals[i].child[j].end_date = new_end_date.value;
+                    }
+
+                    let params = new URLSearchParams();
+                    params.append('animals', JSON.stringify(app.animals));
+
+                    let self = this;
+                    axios.post('sort_item.php', params)
+                        .then(response => {
+                            document.getElementById('edit_item_mordal').remove();
+                            document.getElementById('gray_mask').remove();
+                            let res = response.data;
+                            self.setPeriod();
+                        }).catch(error => {
+                            // eslint-disable-next-line
+                            console.log(error);
+                        });
+                }else{
+                    alert('period is invalid');
+                }
+            }}, false);
+            form_mordal.appendChild(item_edit_submit);
+
+            mordal.appendChild(form_mordal);
+            document.body.appendChild(gray_mask);
+            document.body.appendChild(mordal);
+        },
+        addChildMordal: function(i){
             const mordal = document.createElement('div');
             mordal.id = 'add_child_mordal';
             mordal.classList.add('add_child');
@@ -68,6 +163,7 @@ const app = new Vue ({
                 const mordal_to_remove = document.getElementById('add_child_mordal');
                 if(mordal_to_remove){
                     mordal_to_remove.parentNode.removeChild(mordal_to_remove);
+                    document.getElementById('gray_mask').remove();
                 }
             },false);
             mordal.appendChild(mordal_close);
@@ -89,6 +185,8 @@ const app = new Vue ({
             end_date_child.setAttribute('name', 'end_date_child');
             form_mordal.appendChild(end_date_child);
             const add_child_submit = document.createElement('button');
+            add_child_submit.style.display = 'block';
+            add_child_submit.style.margin = '1rem auto';
             add_child_submit.textContent = 'add childtask';
             add_child_submit.addEventListener('click', { i : i, handleEvent: function handleEvent(event){
                 console.log(i);
@@ -108,6 +206,8 @@ const app = new Vue ({
                       let res = response.data;
                       // console.log(JSON.parse(response.data.text));
                       self.setPeriod();
+                      document.getElementById('add_child_mordal').remove();
+                      document.getElementById('gray_mask').remove();
                   }).catch(error => {
                     // eslint-disable-next-line
                     console.log(error);
@@ -116,15 +216,17 @@ const app = new Vue ({
             form_mordal.appendChild(add_child_submit);
 
             mordal.appendChild(form_mordal);
+            document.body.appendChild(gray_mask);
             document.body.appendChild(mordal);
         },
-        remove: function(index){
+        removeItem: function(index){
             this.animals.splice(index,1);
+            let params = new URLSearchParams();
+            params.append('animals', JSON.stringify(app.animals));
             let self = this;
             axios.post('sort_item.php', params)
               .then(response => {
                   let res = response.data;
-                  // console.log(JSON.parse(response.data.text));
                   self.setPeriod();
               }).catch(error => {
                 // eslint-disable-next-line
@@ -138,7 +240,6 @@ const app = new Vue ({
             axios.post('sort_item.php', params)
               .then(response => {
                   let res = response.data;
-                  // console.log(JSON.parse(response.data.text));
                   self.setPeriod();
               }).catch(error => {
                 // eslint-disable-next-line
@@ -156,9 +257,10 @@ const app = new Vue ({
             let task_num_total = 0;
             for (let i = 0; i < tasks.length; i++){
                 let y_task = tasks[i].getBoundingClientRect().top;
+                console.log(tasks[i].children[0].textContent);
                 let start_date = tasks[i].children[1].textContent;
                 let end_date = tasks[i].children[2].textContent;
-                let span_start = document.getElementById(String(start_date));
+                let span_start = document.getElementById(start_date);
                 let span_end = document.getElementById(end_date);
 
                 let start_x = span_start.getBoundingClientRect().left;
@@ -198,7 +300,7 @@ const app_cal = new Vue ({
           date_from : moment(),
           date_til : moment(),
           days_disp: Number,
-          width_num : 32,
+          width_num : 25,
           height_num : '70vh',
           item_list : [],
         }
@@ -208,10 +310,6 @@ const app_cal = new Vue ({
           this.item_list = app.animals;
           let oldest_start_date = moment('2100-12-31');
           let newest_end_date = moment('1970-01-01');
-          // eslint-disable-next-line
-          console.log('Calendar.created');
-          // eslint-disable-next-line
-          console.log(this.item_list);
 
           for (let i = 0; i < this.item_list.length; i++) {
               let date_start = moment(this.item_list[i].start_date);
@@ -412,18 +510,14 @@ function getPeriodWidth(event){
     period_end_which = event.target.classList.value;
     period_to_edit = event.target.parentNode;
     period_width_mousedown = period_to_edit.getBoundingClientRect().width;
-    calendar.addEventListener('mousemove', getExtendedPeriodWidth,false);
-    calendar.addEventListener('mouseup', function(){
-        calendar.removeEventListener('mousemove', getExtendedPeriodWidth,false);
+    document.getElementById('calendar').addEventListener('mousemove', getExtendedPeriodWidth,false);
+    document.getElementById('calendar').addEventListener('mouseup', function(){
+        document.getElementById('calendar').removeEventListener('mousemove', getExtendedPeriodWidth,false);
     },false);
 }
 
 function getExtendedPeriodWidth(event){
-    // console.log(event.clientX, event.clientY);
-    // console.log(document.elementFromPoint(event.clientX, event.clientY).id);
-    // console.log(period_to_edit);
     let item_to_edit = period_to_edit.id.replace('period_', '');
-    // console.log(item_to_edit);
     if(document.elementFromPoint(event.clientX, event.clientY).id){
         if(period_end_which == 'rightend_period'){
             if(item_to_edit.includes('-')){
@@ -446,7 +540,6 @@ function getExtendedPeriodWidth(event){
         axios.post('sort_item.php', params)
           .then(response => {
               let res = response.data;
-              // console.log(JSON.parse(response.data.text));
               app.setPeriod();
           }).catch(error => {
             // eslint-disable-next-line

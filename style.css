@@ -1,5 +1,5 @@
 .calendar_wrapper {
-  width: 80vw;
+  width: 75vw;
   height: 70vh;
   overflow-x: scroll;
 }
@@ -25,12 +25,11 @@
 .task .datetime_end,
 .task i
 {
-  margin-left: 0.4rem;
+  margin-left: 0.2rem;
 }
 .task_name { display: inline-block; width: 40%; }
 .datetime_start, .datetime_end {
   display: inline-block;
-  width: 18%;
   font-size: 0.6rem;
 }
 .fa-plus { display: inline-block; width: 3%; }
@@ -50,7 +49,7 @@ input[name='task_name'] {
 }
 
 .task_title_area {
-  width: 30vw;
+  width: 35vw;
   max-height: 80vh;
   margin-top: 24px;
 }
@@ -93,7 +92,8 @@ input[name='task_name'] {
 .day {
   position: relative;
   display: inline-block;
-  width: 30px;
+  font-size: 0.7rem;
+  width: 25px;
   height: 100%;
   border-left: 1px solid #e6e6e6;
 }
@@ -105,7 +105,7 @@ input[name='task_name'] {
   top: 0;
   left: 0;
   display: inline-block;
-  width: 30px;
+  width: 25px;
   color: #6e6e6e;
   text-align: center;
   content: '';
@@ -296,6 +296,9 @@ input[name='task_name'] {
   text-align: center;
 }
 
+.fas, .far {
+  cursor: pointer;
+}
 .add_child input[type='text']{
   display: block;
   width: 80%;
