@@ -260,11 +260,18 @@ input[name='task_name'] {
 
 .period {
   position: absolute;
-  background-color: green;
+  background-color: #5FB404;
   height: 1.2rem;
   z-index: 1;
+  left: 0;
+}
+.period_end_date {
+  display: inline-block;
+  visibility: hidden;
+  vertical-align: top;
 }
 .rightend_period {
+  display: inline-block;
   position: absolute;
   right: 0;
   width: 30px;
@@ -272,6 +279,7 @@ input[name='task_name'] {
   cursor: ew-resize;
 }
 .leftend_period {
+  display: inline-block;
   width: 30px;
   height: 1.2rem;
   cursor: ew-resize;
